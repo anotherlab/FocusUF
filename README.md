@@ -5,6 +5,8 @@ The LifeCam HD-5000 webcam is a decent webcam with an annoying feature.  The aut
 
 The FocusUF app will use the [DirectShowLib library](https://www.nuget.org/packages/DirectShowLib/) library to provide easy access to the focus control of the webcam.  The DirectShowLib library maps the DirectShow Interfaces for use from a .NET app.  The app is hard coded to connect to a LifeCam HD-5000, but it would be easy enough to change the code for other webcam.
 
+The code was written with Visual Studio 2017, it has not been tested with any other compiler.
+
 ## How to use
 Launch the app that will be using the webcam.  Wait until it is in focus and then run FocusUF.  It will detect the webcam and flip the autofocus setting to manual and lock it to the current focus setting.  The setting will persist until the webcam is reset or another app changes the focus setting.
 
