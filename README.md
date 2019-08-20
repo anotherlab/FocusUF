@@ -7,6 +7,9 @@ FocusUF uses the [DirectShowLib library](https://www.nuget.org/packages/DirectSh
 
 The code was written with Visual Studio 2017, it has not been tested with any other compiler.
 
+## Note
+This repo only has the source code, not the actual command line tool. You will need to compile the code.
+
 ## How to use
 Launch the app that will be using the webcam.  Wait until it is in focus and then run FocusUF.  It will detect the webcam and flip the autofocus setting to manual and lock it to the current focus setting.  The setting will persist until the webcam is reset or another app changes the focus setting.
 
