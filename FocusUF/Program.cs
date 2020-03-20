@@ -1,5 +1,7 @@
 ﻿using DirectShowLib;
+using System;
 using System.Linq;
+using System.Reflection;
 
 // Started with the code posted here: https://stackoverflow.com/a/18189027/206
 
@@ -9,11 +11,14 @@ namespace FocusUF
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("FocusUF " + Assembly.GetEntryAssembly().GetName().Version);
+            Console.WriteLine("Get the source at https://github.com/anotherlab/FocusUF");
+
             // Get the list of connected video cameras
             DsDevice[] devs = DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice);
             
             // Filter that list down to the one with hyper-aggressive focus
-            var dev = devs.Where(d => d.Name.Equals("Microsoft® LifeCam HD-5000")).FirstOrDefault();
+            var dev = devs.Where(d => d.Name == "Microsoft® LifeCam HD-5000").FirstOrDefault();
 
             if (dev != null)
             {
@@ -35,8 +40,17 @@ namespace FocusUF
                     if (f != CameraControlFlags.Manual)
                     {
                         _camera.Set(CameraControlProperty.Focus, v, CameraControlFlags.Manual);
+                        Console.WriteLine("Manual focus engaged");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Manual focus already engaged");
                     }
                 }
+            }
+            else 
+            {
+                Console.WriteLine("No matching webcams found");
             }
 
         }
