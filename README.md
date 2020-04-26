@@ -13,7 +13,7 @@ I have added a Windows command line executable, in a zip file in the win32 folde
 ## How to use
 Launch the app that will be using the webcam.  Wait until it is in focus and then run FocusUF.  It will detect the webcam and flip the autofocus setting to manual and lock it to the current focus setting.  The setting will persist until the webcam is reset or another app changes the focus setting.
 
-Thanks to the changes submitted by @cainhopwood, we have command line options to that let you select a webcam by name or partial name. You also have the ability to set the exposure and focus by value.  Use the --list-cameras to get the list of webcams and the values supported for focus and exposure.
+Thanks to the changes submitted by [@cainhopwood](https://github.com/cainhopwood), we have command line options to that let you select a webcam by name or partial name. You also have the ability to set the exposure and focus by value.  Use the --list-cameras to get the list of webcams and the values supported for focus and exposure.
 ```dos
 Usage: FocusUF [--help | -?] [--list-cameras | -l]
                [--focus-mode-manual | -fm] [--focus-mode-auto | -fa]
