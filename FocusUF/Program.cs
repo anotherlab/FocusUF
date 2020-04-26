@@ -50,17 +50,24 @@ namespace FocusUF
                     {
                         Console.WriteLine($"Camera: {cam.Name}");
                         camera = GetCamera(cam);
-                        // Focus ranges and Values
-                        camera.GetRange(CameraControlProperty.Focus, out int focusMin, out int focusMax, out int focusStep, out int focusDefault, out CameraControlFlags focusPossFlags);
-                        camera.Get(CameraControlProperty.Focus, out int focusValue, out CameraControlFlags focusSetting);
-                        Console.WriteLine($"    Focus Capability: {focusPossFlags}");
-                        Console.WriteLine($"    Focus Range: {focusMin} - {focusMax}");
-                        Console.WriteLine($"    Focus Setting: {focusSetting}, {focusValue}");
-                        camera.GetRange(CameraControlProperty.Exposure, out int expMin, out int expMax, out int expStep, out int expDefault, out CameraControlFlags expPossFlags);
-                        camera.Get(CameraControlProperty.Exposure, out int expValue, out CameraControlFlags expSetting);
-                        Console.WriteLine($"    Exposure Capability: {expPossFlags}");
-                        Console.WriteLine($"    Exposure Range: {expMin} - {expMax}");
-                        Console.WriteLine($"    Exposure Setting: {expSetting}, {expValue}");
+                        if (camera != null)
+                        {
+                            // Focus ranges and Values
+                            camera.GetRange(CameraControlProperty.Focus, out int focusMin, out int focusMax, out int focusStep, out int focusDefault, out CameraControlFlags focusPossFlags);
+                            camera.Get(CameraControlProperty.Focus, out int focusValue, out CameraControlFlags focusSetting);
+                            Console.WriteLine($"    Focus Capability: {focusPossFlags}");
+                            Console.WriteLine($"    Focus Range: {focusMin} - {focusMax}");
+                            Console.WriteLine($"    Focus Setting: {focusSetting}, {focusValue}");
+                            camera.GetRange(CameraControlProperty.Exposure, out int expMin, out int expMax, out int expStep, out int expDefault, out CameraControlFlags expPossFlags);
+                            camera.Get(CameraControlProperty.Exposure, out int expValue, out CameraControlFlags expSetting);
+                            Console.WriteLine($"    Exposure Capability: {expPossFlags}");
+                            Console.WriteLine($"    Exposure Range: {expMin} - {expMax}");
+                            Console.WriteLine($"    Exposure Setting: {expSetting}, {expValue}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"    Camera does not expose settings through DirectShowLib");
+                        }
                     }
                     break;
 
@@ -118,7 +125,7 @@ namespace FocusUF
 
         static void SetCameraFlag (DsDevice[] devs, string cameraName, CameraControlProperty camProperty, CameraControlFlags flagVal)
         {
-            IAMCameraControl camera = GetCamera(devs.Where(d => d.Name.Contains(cameraName)).FirstOrDefault());
+            IAMCameraControl camera = GetCamera(devs.Where(d => d.Name.ToLower().Contains(cameraName.ToLower())).FirstOrDefault());
 
             if (camera != null)
             {
@@ -138,13 +145,13 @@ namespace FocusUF
             }
             else
             {
-                Console.WriteLine($"No camera matching \"{cameraName}\" found");
+                Console.WriteLine($"No physical camera matching \"{cameraName}\" found");
             }
         }
 
         static void SetCameraValue(DsDevice[] devs, string cameraName, CameraControlProperty camProperty, int val)
         {
-            IAMCameraControl camera = GetCamera(devs.Where(d => d.Name.Contains(cameraName)).FirstOrDefault());
+            IAMCameraControl camera = GetCamera(devs.Where(d => d.Name.ToLower().Contains(cameraName.ToLower())).FirstOrDefault());
 
             if (camera != null)
             {
@@ -164,7 +171,7 @@ namespace FocusUF
             }
             else
             {
-                Console.WriteLine($"No camera matching \"{cameraName}\" found");
+                Console.WriteLine($"No physical camera matching \"{cameraName}\" found");
             }
         }
 
