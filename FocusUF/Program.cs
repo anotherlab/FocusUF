@@ -33,67 +33,71 @@ namespace FocusUF
             Console.WriteLine("FocusUF " + Assembly.GetEntryAssembly().GetName().Version);
             Console.WriteLine("Get the source at https://github.com/anotherlab/FocusUF");
 
-            _whatToDo = ProcessArgs(args.ToList());
+            var argsLists = SplitArgs(args.ToList());
 
             // Get the list of connected video cameras
             DsDevice[] devs = DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice);
 
-            IAMCameraControl camera;
-            switch (_whatToDo)
+            foreach (var argsList in argsLists)
             {
-                case Operation.Usage:
-                    Usage();
-                    break;
+                _whatToDo = ProcessArgs(argsList);
+                IAMCameraControl camera;
+                switch (_whatToDo)
+                {
+                    case Operation.Usage:
+                        Usage();
+                        break;
 
-                case Operation.ListCameras:
-                    foreach(var cam in devs)
-                    {
-                        Console.WriteLine($"Camera: {cam.Name}");
-                        camera = GetCamera(cam);
-                        if (camera != null)
+                    case Operation.ListCameras:
+                        foreach (var cam in devs)
                         {
-                            // Focus ranges and Values
-                            camera.GetRange(CameraControlProperty.Focus, out int focusMin, out int focusMax, out int focusStep, out int focusDefault, out CameraControlFlags focusPossFlags);
-                            camera.Get(CameraControlProperty.Focus, out int focusValue, out CameraControlFlags focusSetting);
-                            Console.WriteLine($"    Focus Capability: {focusPossFlags}");
-                            Console.WriteLine($"    Focus Range: {focusMin} - {focusMax}");
-                            Console.WriteLine($"    Focus Setting: {focusSetting}, {focusValue}");
-                            camera.GetRange(CameraControlProperty.Exposure, out int expMin, out int expMax, out int expStep, out int expDefault, out CameraControlFlags expPossFlags);
-                            camera.Get(CameraControlProperty.Exposure, out int expValue, out CameraControlFlags expSetting);
-                            Console.WriteLine($"    Exposure Capability: {expPossFlags}");
-                            Console.WriteLine($"    Exposure Range: {expMin} - {expMax}");
-                            Console.WriteLine($"    Exposure Setting: {expSetting}, {expValue}");
+                            Console.WriteLine($"Camera: {cam.Name}");
+                            camera = GetCamera(cam);
+                            if (camera != null)
+                            {
+                                // Focus ranges and Values
+                                camera.GetRange(CameraControlProperty.Focus, out int focusMin, out int focusMax, out int focusStep, out int focusDefault, out CameraControlFlags focusPossFlags);
+                                camera.Get(CameraControlProperty.Focus, out int focusValue, out CameraControlFlags focusSetting);
+                                Console.WriteLine($"    Focus Capability: {focusPossFlags}");
+                                Console.WriteLine($"    Focus Range: {focusMin} - {focusMax}");
+                                Console.WriteLine($"    Focus Setting: {focusSetting}, {focusValue}");
+                                camera.GetRange(CameraControlProperty.Exposure, out int expMin, out int expMax, out int expStep, out int expDefault, out CameraControlFlags expPossFlags);
+                                camera.Get(CameraControlProperty.Exposure, out int expValue, out CameraControlFlags expSetting);
+                                Console.WriteLine($"    Exposure Capability: {expPossFlags}");
+                                Console.WriteLine($"    Exposure Range: {expMin} - {expMax}");
+                                Console.WriteLine($"    Exposure Setting: {expSetting}, {expValue}");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"    Camera does not expose settings through DirectShowLib");
+                            }
                         }
-                        else
-                        {
-                            Console.WriteLine($"    Camera does not expose settings through DirectShowLib");
-                        }
-                    }
-                    break;
+                        break;
 
-                case Operation.ManualFocus:
-                    SetCameraFlag(devs, _cameraName, CameraControlProperty.Focus, CameraControlFlags.Manual);
-                    break;
+                    case Operation.ManualFocus:
+                        SetCameraFlag(devs, _cameraName, CameraControlProperty.Focus, CameraControlFlags.Manual);
+                        break;
 
-                case Operation.AutoFocus:
-                    SetCameraFlag(devs, _cameraName, CameraControlProperty.Focus, CameraControlFlags.Auto);
-                    break;
+                    case Operation.AutoFocus:
+                        SetCameraFlag(devs, _cameraName, CameraControlProperty.Focus, CameraControlFlags.Auto);
+                        break;
 
-                case Operation.SetFocus:
-                    SetCameraValue(devs, _cameraName, CameraControlProperty.Focus, _focusSetting);
-                    break;
+                    case Operation.SetFocus:
+                        SetCameraValue(devs, _cameraName, CameraControlProperty.Focus, _focusSetting);
+                        break;
 
-                case Operation.ManualExposure:
-                    SetCameraFlag(devs, _cameraName, CameraControlProperty.Exposure, CameraControlFlags.Manual);
-                    break;
+                    case Operation.ManualExposure:
+                        SetCameraFlag(devs, _cameraName, CameraControlProperty.Exposure, CameraControlFlags.Manual);
+                        break;
 
-                case Operation.AutoExposure:
-                    SetCameraFlag(devs, _cameraName, CameraControlProperty.Exposure, CameraControlFlags.Auto);
-                    break;
+                    case Operation.AutoExposure:
+                        SetCameraFlag(devs, _cameraName, CameraControlProperty.Exposure, CameraControlFlags.Auto);
+                        break;
 
-                case Operation.SetExposure:
-                    SetCameraValue(devs, _cameraName, CameraControlProperty.Exposure, _exposureSetting);
-                    break;
+                    case Operation.SetExposure:
+                        SetCameraValue(devs, _cameraName, CameraControlProperty.Exposure, _exposureSetting);
+                        break;
+                }
             }
 
         }
@@ -176,6 +180,25 @@ namespace FocusUF
         }
 
         /// <summary>
+        /// Split the argument list on "--and" into multiple lists
+        /// </summary>
+        /// <param name="args">The raw program arguments</param>
+        /// <returns>A list of sublists of arguments</returns>
+        static IList<List<string>> SplitArgs(List<string> args)
+        {
+            var argLists = new List<List<string>>();
+            for (var startIndex = 0; startIndex < args.Count; )
+            {
+                var andIndex = args.FindIndex(startIndex, s => s.Equals("--and", StringComparison.OrdinalIgnoreCase));
+                if (andIndex < 0)
+                    andIndex = args.Count;
+                argLists.Add(args.GetRange(startIndex, andIndex - startIndex));
+                startIndex = andIndex + 1;
+            }
+            return argLists;
+        }
+
+        /// <summary>
         /// Basic argument processing, return an operation and set globals
         /// </summary>
         /// <param name="args"></param>
@@ -234,7 +257,8 @@ Usage: FocusUF [--help | -?] [--list-cameras | -l]
                [--set-focus <value> | -f <value>]
                [--exposure-mode-manual | -em] [--exposure-mode-auto | -ea]
                [--set-exposure <value> | -e <value>]
-               [--camera-name <name> | -n <name>]");
+               [--camera-name <name> | -n <name>]
+               [--and {more operations...}]");
         }
 
     }
